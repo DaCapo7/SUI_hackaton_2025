@@ -3,6 +3,7 @@ import {
   DEVNET_COUNTER_PACKAGE_ID,
   TESTNET_COUNTER_PACKAGE_ID,
   MAINNET_COUNTER_PACKAGE_ID,
+  TESTNET_LOVELOCK_PACKAGE_ID
 } from "./constants";
 import { createNetworkConfig } from "@mysten/dapp-kit";
 
@@ -18,6 +19,7 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } =
       url: getFullnodeUrl("testnet"),
       variables: {
         counterPackageId: TESTNET_COUNTER_PACKAGE_ID,
+        loveLockPackageId: TESTNET_LOVELOCK_PACKAGE_ID,
       },
     },
     mainnet: {
