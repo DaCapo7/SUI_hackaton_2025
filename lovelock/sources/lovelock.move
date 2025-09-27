@@ -26,7 +26,7 @@ const ERR_NOT_ENOUGH_COINS: u64 = 1001;
 
 /// A Bridge represents a collection of Locks. All payments goes to the owner's 
 /// address.
-public struct Bridge has key{
+private struct Bridge has key{
     id: UID,
     owner: address,
     locks: vector<Lock>,
