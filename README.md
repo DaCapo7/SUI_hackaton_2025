@@ -1,1 +1,0 @@
-# SUI_hackaton_2025
