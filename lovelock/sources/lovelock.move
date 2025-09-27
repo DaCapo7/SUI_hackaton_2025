@@ -52,18 +52,19 @@ fun init(ctx: &mut TxContext) {
     let mut bridge = Bridge { id: object::new(ctx) , owner: ctx.sender(), locks};
 
     // Transfer the object to the transaction sender.
-    transfer::transfer(bridge, ctx.sender());
+    //transfer::transfer(bridge, ctx.sender());
+    transfer::share_object(bridge);
 }
 
-public fun create_date(day : u8, month : u8, y :u16): Date{
+fun create_date(day : u8, month : u8, y :u16): Date{
     let d = Date{year: y, month: month, day:day};
     (d)
 }
 
 public fun create_lock(
     bridge: &mut Bridge,
-     p1: UID,
-     p2: UID,
+     p1: address,
+     p2: address,
      message: String,
     day: u8,
     month: u8,
@@ -88,6 +89,3 @@ public fun create_lock(
 
     bridge.locks.push_back(lock);
 }
-
-/*Photorealistic side view of the Pont des Arts bridge in Paris. The entire wrought-iron railing is densely covered with thousands of engraved metal padlocks, creating a textured, shimmering surface. The padlocks range in size and color, from new and shiny to old and rusted. In the background, the Seine River and the Louvre Museum are softly blurred. The scene is lit by the warm, gentle light of sunset, casting long shadows. Shallow depth of field, cinematic style.
-*/
