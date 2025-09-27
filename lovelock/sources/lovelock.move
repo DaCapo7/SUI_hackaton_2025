@@ -25,8 +25,8 @@ public struct Bridge has key{
 
 public struct Lock has key, store{
     id: UID,
-    p1: UID,
-    p2: UID,
+    p1: address,
+    p2: address,
     message: String,
     creation_date: Date,
 }
@@ -54,8 +54,12 @@ public fun create_date(day : u8, month : u8, y :u16): Date{
 }
 
 public fun create_lock(
-    bridge: &mut Bridge, ctx: &mut TxContext, p1: UID, p2: UID, message: String, day: u8, month: u8, y:u16){
+     bridge: &mut Bridge, day: u8, month: u8, y:u16, message: String,p1: address, p2: address,  ctx: &mut TxContext){ //, message: String){
+
+    /*let p1:address = @0x01;
+    let p2:address = @0x02;*/
     
+
     let current_date = create_date(day, month, y);
 
     let lock = Lock{
