@@ -23,10 +23,11 @@ use sui::sui::SUI;
 
 const LOCK_PRICE: u64 = 390_000_000;
 const ERR_NOT_ENOUGH_COINS: u64 = 1001;
+const ERR_NOT_SAME_ID: u64 = 6942;
 
 public struct Bridge has key{
     id: UID,
-    owner: address,
+    master: address,
     locks: vector<Lock>,
 }
 
@@ -36,6 +37,9 @@ public struct Lock has key, store{
     p2: address,
     message: String,
     creation_date: Date,
+    closed: bool,
+    coin: Option<Coin<SUI>>,
+    bridge: &mut Bridge,
 }
 
 public struct Date has store{
@@ -49,7 +53,7 @@ public struct Date has store{
 fun init(ctx: &mut TxContext) {
     let locks:vector<Lock> = vector[];
     
-    let mut bridge = Bridge { id: object::new(ctx) , owner: ctx.sender(), locks};
+    let mut bridge = Bridge { id: object::new(ctx) , master: ctx.sender(), locks};
 
     // Transfer the object to the transaction sender.
     //transfer::transfer(bridge, ctx.sender());
@@ -73,7 +77,7 @@ public fun create_lock(
 
     assert!(value(&payment) >= LOCK_PRICE, ERR_NOT_ENOUGH_COINS);
     let lock_payment = split(&mut payment, LOCK_PRICE, ctx);
-    transfer::public_transfer(lock_payment, bridge.owner);
+    //transfer::public_transfer(lock_payment, bridge.owner);
     transfer::public_transfer(payment, ctx.sender());
 
     let current_date = create_date(day, month, y);
@@ -84,7 +88,26 @@ public fun create_lock(
         p2: p2,
         message: message,
         creation_date: current_date,
+        closed: false,
+        coin: lock_payment,
+        bridge: bridge
     };
 
     bridge.locks.push_back(lock);
+}
+
+public fun choose_fate_lock(lock: &mut Lock, accept: bool, ctx: &mut TxContext){
+    assert!(ctx.sender()==lock.p2, ERR_NOT_SAME_ID);
+
+    if(accept){
+        lock.closed = true;
+        transfer::public_transfer(lock.coin.extract(), lock.bridge.master);
+    }else{
+        transfer::public_transfer(lock.coin.extract(), lock.p1);
+        
+        let (_found, position) = lock.bridge.locks.index_of(lock);
+        lock.bridge.locks.remove(position);
+        lock.UID.delete();
+    }
+
 }
