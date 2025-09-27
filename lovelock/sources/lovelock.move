@@ -1,14 +1,9 @@
-/*
-TODO : 
-payment
-security
-2 persons consenstneoiansdofkimae
-date string->date
-
-*/
-
-
 /// Module: lovelock
+/// 
+/// This module allows users to create "padlocks" (immutable Lock objects) that are
+/// stored permanently on the blockchain. Locks are grouped under a Bridge. Payments 
+/// in SUI coins are required to create locks, and all locks include metadata such 
+/// as participants, messages, and creation date.
 module lovelock::lovelock;
 
 
@@ -26,14 +21,15 @@ use bridge::bridge;
 const LOCK_PRICE: u64 = 390_000_000;
 const ERR_NOT_ENOUGH_COINS: u64 = 1001;
 const ERR_NOT_SAME_ID: u64 = 6942;
+const ERR_LOCK_NOT_CLOSED: u64 = 2020;
 
 public struct Bridge has key{
     id: UID,
     master: address,
-    locks: vector<Lock>,
+    //locks: vector<UID>,
 }
 
-public struct Lock has key, store{
+public struct Lock has key{
     id: UID,
     p1: address,
     p2: address,
@@ -52,9 +48,9 @@ public struct Date has drop, store{
 /// `init` function is a special function that is called when the module
 /// is published. It is a good place to do a setup for an application.
 fun init(ctx: &mut TxContext) {
-    let locks:vector<Lock> = vector[];
+    //let locks:vector<UID> = vector[];
     
-    let mut bridge = Bridge { id: object::new(ctx) , master: ctx.sender(), locks};
+    let mut bridge = Bridge { id: object::new(ctx) , master: ctx.sender()/*, locks*/};
 
     // Transfer the object to the transaction sender.
     //transfer::transfer(bridge, ctx.sender());
@@ -94,29 +90,39 @@ public fun create_lock(
         coin: option_payment,
     };
 
-    bridge.locks.push_back(lock);
+    //let obj_id: ID = object::id(bridge);
+    transfer::transfer(lock, p2);
+    //bridge.locks.push_back(lock);
 }
 
-public fun choose_fate_lock(lock: &mut Lock, bridge: &mut Bridge, accept: bool, ctx: &mut TxContext){
+public fun choose_fate_lock(mut lock: Lock, bridge: &mut Bridge, accept: bool, ctx: &mut TxContext){
     assert!(ctx.sender()==lock.p2, ERR_NOT_SAME_ID);
+    assert!(lock.closed == false, ERR_LOCK_NOT_CLOSED);
 
     if(accept){
         lock.closed = true;
         transfer::public_transfer(lock.coin.extract(), bridge.master);
+        let obj_id: ID = object::id(bridge);
+        transfer::transfer(lock, object::id_to_address(&obj_id));
     }else{
         
         
-        let (_found, position) = bridge.locks.index_of(lock);
-        let lock2: Lock = bridge.locks.remove(position);
-        let Lock{id: id,p1: _,p2: _,message: _,creation_date: _, closed:_ ,coin: mut extracted} = lock2;
+        //let (_found, position) = bridge.locks.index_of(lock);
+        //let lock2: Lock = bridge.locks.remove(position);
+        let Lock{id: id,p1: p1,p2: _,message: _,creation_date: _, closed:_ ,coin: mut extracted} = lock;
+
+        
 
         if(extracted.is_some()){
             let c = extracted.extract();
-            transfer::public_transfer(c, lock.p1);
+            transfer::public_transfer(c, p1);
         };
         extracted.destroy_none();
-    
         id.delete();
+
+
+    
+        
     }
 
 
