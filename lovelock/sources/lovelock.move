@@ -63,9 +63,8 @@ fun create_date(day : u8, month : u8, y :u16): Date{
 
 public fun create_lock(
     bridge: &mut Bridge,
-     p1: address,
-     p2: address,
-     message: String,
+    p2: address,
+    message: String,
     day: u8,
     month: u8,
     y:u16,
@@ -81,7 +80,7 @@ public fun create_lock(
 
     let lock = Lock{
         id :object::new(ctx),
-        p1: p1,
+        p1: ctx.sender(),
         p2: p2,
         message: message,
         creation_date: current_date,
