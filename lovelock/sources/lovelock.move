@@ -20,6 +20,8 @@ use sui::coin::{Coin, value, split};
 use sui::transfer;
 use sui::sui;
 use sui::sui::SUI;
+use bridge::bridge;
+
 
 const LOCK_PRICE: u64 = 390_000_000;
 const ERR_NOT_ENOUGH_COINS: u64 = 1001;
@@ -39,10 +41,9 @@ public struct Lock has key, store{
     creation_date: Date,
     closed: bool,
     coin: Option<Coin<SUI>>,
-    bridge: &mut Bridge,
 }
 
-public struct Date has store{
+public struct Date has drop, store{
     year: u16,
     month: u8,
     day: u8
@@ -81,6 +82,7 @@ public fun create_lock(
     transfer::public_transfer(payment, ctx.sender());
 
     let current_date = create_date(day, month, y);
+    let mut option_payment: Option<Coin<SUI>> = option::some(lock_payment);
 
     let lock = Lock{
         id :object::new(ctx),
@@ -89,25 +91,33 @@ public fun create_lock(
         message: message,
         creation_date: current_date,
         closed: false,
-        coin: lock_payment,
-        bridge: bridge
+        coin: option_payment,
     };
 
     bridge.locks.push_back(lock);
 }
 
-public fun choose_fate_lock(lock: &mut Lock, accept: bool, ctx: &mut TxContext){
+public fun choose_fate_lock(lock: &mut Lock, bridge: &mut Bridge, accept: bool, ctx: &mut TxContext){
     assert!(ctx.sender()==lock.p2, ERR_NOT_SAME_ID);
 
     if(accept){
         lock.closed = true;
-        transfer::public_transfer(lock.coin.extract(), lock.bridge.master);
+        transfer::public_transfer(lock.coin.extract(), bridge.master);
     }else{
-        transfer::public_transfer(lock.coin.extract(), lock.p1);
         
-        let (_found, position) = lock.bridge.locks.index_of(lock);
-        lock.bridge.locks.remove(position);
-        lock.UID.delete();
+        
+        let (_found, position) = bridge.locks.index_of(lock);
+        let lock2: Lock = bridge.locks.remove(position);
+        let Lock{id: id,p1: _,p2: _,message: _,creation_date: _, closed:_ ,coin: mut extracted} = lock2;
+
+        if(extracted.is_some()){
+            let c = extracted.extract();
+            transfer::public_transfer(c, lock.p1);
+        };
+        extracted.destroy_none();
+    
+        id.delete();
     }
+
 
 }
