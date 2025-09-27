@@ -16,10 +16,17 @@ module lovelock::lovelock;
 // https://docs.sui.io/concepts/sui-move-concepts/conventions
 
 use std::string::String;
+use sui::coin::{Coin, value, split};
+use sui::transfer;
+use sui::sui;
+use sui::sui::SUI;
 
+const LOCK_PRICE: u64 = 390_000_000;
+const ERR_NOT_ENOUGH_COINS: u64 = 1001;
 
 public struct Bridge has key{
     id: UID,
+    owner: address,
     locks: vector<Lock>,
 }
 
@@ -42,7 +49,7 @@ public struct Date has store{
 fun init(ctx: &mut TxContext) {
     let locks:vector<Lock> = vector[];
     
-    let mut bridge = Bridge { id: object::new(ctx) , locks};
+    let mut bridge = Bridge { id: object::new(ctx) , owner: ctx.sender(), locks};
 
     // Transfer the object to the transaction sender.
     transfer::transfer(bridge, ctx.sender());
@@ -54,11 +61,20 @@ public fun create_date(day : u8, month : u8, y :u16): Date{
 }
 
 public fun create_lock(
-     bridge: &mut Bridge, day: u8, month: u8, y:u16, message: String,p1: address, p2: address,  ctx: &mut TxContext){ //, message: String){
+    bridge: &mut Bridge,
+     p1: UID,
+     p2: UID,
+     message: String,
+    day: u8,
+    month: u8,
+    y:u16,
+    mut payment: Coin<SUI>,
+    ctx: &mut TxContext) {
 
-    /*let p1:address = @0x01;
-    let p2:address = @0x02;*/
-    
+    assert!(value(&payment) >= LOCK_PRICE, ERR_NOT_ENOUGH_COINS);
+    let lock_payment = split(&mut payment, LOCK_PRICE, ctx);
+    transfer::public_transfer(lock_payment, bridge.owner);
+    transfer::public_transfer(payment, ctx.sender());
 
     let current_date = create_date(day, month, y);
 
@@ -72,3 +88,6 @@ public fun create_lock(
 
     bridge.locks.push_back(lock);
 }
+
+/*Photorealistic side view of the Pont des Arts bridge in Paris. The entire wrought-iron railing is densely covered with thousands of engraved metal padlocks, creating a textured, shimmering surface. The padlocks range in size and color, from new and shiny to old and rusted. In the background, the Seine River and the Louvre Museum are softly blurred. The scene is lit by the warm, gentle light of sunset, casting long shadows. Shallow depth of field, cinematic style.
+*/
