@@ -75,7 +75,7 @@ public fun create_lock(
     let lock_payment = split(&mut payment, LOCK_PRICE, ctx);
     transfer::public_transfer(lock_payment, bridge.owner);
     transfer::public_transfer(payment, ctx.sender());
-    
+
     let current_date = create_date(day, month, y);
 
     let lock = Lock{
@@ -88,3 +88,6 @@ public fun create_lock(
 
     bridge.locks.push_back(lock);
 }
+
+/*Photorealistic side view of the Pont des Arts bridge in Paris. The entire wrought-iron railing is densely covered with thousands of engraved metal padlocks, creating a textured, shimmering surface. The padlocks range in size and color, from new and shiny to old and rusted. In the background, the Seine River and the Louvre Museum are softly blurred. The scene is lit by the warm, gentle light of sunset, casting long shadows. Shallow depth of field, cinematic style.
+*/
