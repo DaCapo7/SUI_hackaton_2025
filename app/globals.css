@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 320 20% 15%;
+    --card: 320 15% 98%;
+    --card-foreground: 320 20% 15%;
+    --popover: 320 15% 98%;
+    --popover-foreground: 320 20% 15%;
+    --primary: 320 70% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 320 25% 95%;
+    --secondary-foreground: 320 20% 15%;
+    --muted: 320 15% 95%;
+    --muted-foreground: 320 10% 45%;
+    --accent: 320 30% 92%;
+    --accent-foreground: 320 20% 15%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 320 20% 88%;
+    --input: 320 20% 88%;
+    --ring: 320 70% 60%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 320 15% 8%;
+    --foreground: 320 10% 95%;
+    --card: 320 15% 10%;
+    --card-foreground: 320 10% 95%;
+    --popover: 320 15% 10%;
+    --popover-foreground: 320 10% 95%;
+    --primary: 320 70% 70%;
+    --primary-foreground: 320 15% 8%;
+    --secondary: 320 20% 15%;
+    --secondary-foreground: 320 10% 95%;
+    --muted: 320 20% 15%;
+    --muted-foreground: 320 10% 65%;
+    --accent: 320 25% 18%;
+    --accent-foreground: 320 10% 95%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 320 20% 20%;
+    --input: 320 20% 20%;
+    --ring: 320 70% 70%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background: linear-gradient(135deg, hsl(320 15% 98%) 0%, hsl(320 20% 95%) 100%);
+    color: hsl(var(--foreground));
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .love-lock-gradient {
+    background: linear-gradient(135deg, hsl(320 70% 60%) 0%, hsl(320 60% 50%) 100%);
+  }
+  
+  .love-lock-card {
+    background: linear-gradient(135deg, hsl(320 15% 98%) 0%, hsl(320 10% 96%) 100%);
+    border: 1px solid hsl(320 20% 88%);
+    box-shadow: 0 4px 6px -1px hsl(320 20% 20% / 0.1), 0 2px 4px -1px hsl(320 20% 20% / 0.06);
+  }
+  
+  .love-lock-button {
+    background: linear-gradient(135deg, hsl(320 70% 60%) 0%, hsl(320 60% 50%) 100%);
+    transition: all 0.3s ease;
+  }
+  
+  .love-lock-button:hover {
+    background: linear-gradient(135deg, hsl(320 70% 55%) 0%, hsl(320 60% 45%) 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -2px hsl(320 70% 40% / 0.3);
+  }
+  
+  .love-lock-accent {
+    background: linear-gradient(135deg, hsl(320 30% 92%) 0%, hsl(320 25% 90%) 100%);
+  }
+  
+  .love-lock-text {
+    color: hsl(320 20% 15%);
+  }
+  
+  .love-lock-text-muted {
+    color: hsl(320 10% 45%);
+  }
+}
